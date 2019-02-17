@@ -1,0 +1,14 @@
+version: "1.0"
+vars:
+  appVersion: 1.0.0
+tasks:
+  build:
+  - description: Build server
+    plugin: build
+
+  clean:
+  - if: file ./vendor
+    description: Remove vendor files
+    plugin: shell
+    params:
+      command: rm -rf ./vendor
