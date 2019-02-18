@@ -17,6 +17,10 @@ func (s *DataSource) Name() string {
 	return name
 }
 
+func (s *DataSource) Sections() []string {
+	return []string{"hot"}
+}
+
 func (s *DataSource) GetPosts(sectionName string, selector feed.Selector) (feed.Posts, error) {
 	subs, err := s.client.SubredditSubmissions(sectionName, geddit.HotSubmissions, geddit.ListingOptions{
 		Limit: int(selector.Count),

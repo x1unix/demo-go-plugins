@@ -9,5 +9,6 @@ type SourceProvider func(rawCfg json.RawMessage) (Source, error)
 type Source interface {
 	Name() string
 	GetPosts(sectionName string, selector Selector) (Posts, error)
+	Sections() []string
 	Dispose() error
 }
