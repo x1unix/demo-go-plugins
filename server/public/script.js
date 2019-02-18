@@ -7,7 +7,7 @@ const app = new Vue({
             source: null,
             section: null,
             lastItem: null,
-            maxCount: 30,
+            maxCount: 60,
             posts: null,
             showNext: false,
         },
