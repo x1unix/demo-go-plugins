@@ -1,4 +1,4 @@
-package reddit
+package main
 
 import (
 	"github.com/jzelinskie/geddit"
