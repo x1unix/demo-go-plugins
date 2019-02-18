@@ -55,6 +55,12 @@ func bootstrap() (err error) {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
+	logrus.SetFormatter(&logrus.TextFormatter{
+		DisableColors: false,
+		FullTimestamp: false,
+		ForceColors:   true,
+	})
+
 	if err := sources.Load(config.Main.Sources); err != nil {
 		return fmt.Errorf("failed to load source libraries: %s", err)
 	}
