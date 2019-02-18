@@ -29,6 +29,12 @@ tasks:
       outputPath: '{{buildDir}}/sources/reddit.so'
       buildMode: plugin
 
+  start:
+    - if: 'file {{buildDir}}'
+      plugin: shell
+      params:
+        command: '{{buildDir}}/server'
+        workDir: '{{buildDir}}'
   clean:
   - if: file ./vendor
     description: Remove vendor files
