@@ -1,10 +1,11 @@
-package main
+package extension
 
 import (
-	"github.com/jzelinskie/geddit"
-	"github.com/x1unix/demo-go-plugins/server/feed"
 	"html"
 	"strings"
+
+	"github.com/jzelinskie/geddit"
+	"github.com/x1unix/demo-go-plugins/server/feed"
 )
 
 func submissionsToPosts(subs []*geddit.Submission) feed.Posts {

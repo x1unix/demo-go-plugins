@@ -1,4 +1,4 @@
-package main
+package extension
 
 import (
 	"net/http"
@@ -8,7 +8,7 @@ import (
 )
 
 type DataSource struct {
-	cfg    config
+	cfg    Config
 	client apiClient
 }
 
@@ -50,7 +50,7 @@ func (s *DataSource) questionsToPosts(questions []question) feed.Posts {
 	return r
 }
 
-func newDataSource(cfg config) *DataSource {
+func NewDataSource(cfg Config) *DataSource {
 	return &DataSource{
 		cfg: cfg,
 		client: apiClient{

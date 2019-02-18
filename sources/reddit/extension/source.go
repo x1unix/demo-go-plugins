@@ -1,7 +1,8 @@
-package main
+package extension
 
 import (
 	"fmt"
+
 	"github.com/jzelinskie/geddit"
 	"github.com/x1unix/demo-go-plugins/server/feed"
 )
@@ -9,7 +10,7 @@ import (
 const name = "reddit"
 
 type DataSource struct {
-	cfg    config
+	cfg    Config
 	client *geddit.Session
 }
 
@@ -38,7 +39,7 @@ func (s *DataSource) Dispose() error {
 	return nil
 }
 
-func newDataSource(cfg config) *DataSource {
+func NewDataSource(cfg Config) *DataSource {
 	return &DataSource{
 		client: geddit.NewSession(cfg.UserAgent),
 		cfg:    cfg,

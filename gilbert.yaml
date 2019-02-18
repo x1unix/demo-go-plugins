@@ -3,7 +3,27 @@ vars:
   appVersion: 1.0.0
   buildDir: '{{PROJECT}}/build'
   libDir: '{{buildDir}}/lib'
+  nativeDir: '{{buildDir}}/native'
+  cLibs: '{{nativeDir}}/libs'
 tasks:
+  build-native:
+  - if: 'file {{nativeDir}}'
+    description: clean
+    plugin: shell
+    params:
+      command: 'rm -rf {{nativeDir}}'
+  - description: build Reddit library
+    plugin: build
+    params:
+      source: './sources/reddit/native/native.go'
+      outputPath: '{{cLibs}}/reddit/reddit.so'
+      buildMode: c-shared
+  - description: build SX library
+    plugin: build
+    params:
+      source: './sources/stackexchange/native/native.go'
+      outputPath: '{{cLibs}}/stackexchange/stackexchange.so'
+      buildMode: c-shared
   build:
   - if: 'file {{buildDir}}'
     description: Clean build directory
