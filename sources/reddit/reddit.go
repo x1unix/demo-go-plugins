@@ -7,7 +7,8 @@ import (
 )
 
 type config struct {
-	UserAgent string `json:"userAgent"`
+	UserAgent  string   `json:"userAgent"`
+	SubReddits []string `json:"subReddits"`
 }
 
 // NewDataSource creates a new data source

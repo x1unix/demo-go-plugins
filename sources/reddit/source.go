@@ -18,7 +18,7 @@ func (s *DataSource) Name() string {
 }
 
 func (s *DataSource) Sections() []string {
-	return []string{"hot"}
+	return s.cfg.SubReddits
 }
 
 func (s *DataSource) GetPosts(sectionName string, selector feed.Selector) (feed.Posts, error) {
