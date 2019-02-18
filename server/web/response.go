@@ -2,13 +2,15 @@ package web
 
 import (
 	"encoding/json"
-	"github.com/sirupsen/logrus"
 	"net/http"
+
+	"github.com/sirupsen/logrus"
 )
 
 type response map[string]interface{}
 
 type errorResponse struct {
+	Code    int    `json:"code"`
 	Message string `json:"error"`
 }
 
@@ -19,7 +21,7 @@ func OK(data interface{}, w http.ResponseWriter) {
 
 // Error sends error response
 func Error(err error, code int, w http.ResponseWriter) {
-	jsonResponse(errorResponse{Message: err.Error()}, code, w)
+	jsonResponse(errorResponse{Code: code, Message: err.Error()}, code, w)
 }
 
 func jsonResponse(data interface{}, code int, w http.ResponseWriter) {
