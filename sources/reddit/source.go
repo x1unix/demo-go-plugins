@@ -6,7 +6,7 @@ import (
 	"github.com/x1unix/demo-go-plugins/server/feed"
 )
 
-const name = "Reddit"
+const name = "reddit"
 
 type DataSource struct {
 	cfg    config
