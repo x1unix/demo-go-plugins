@@ -103,3 +103,10 @@
 .x-post__body {
 
 }
+
+.x-spinner {
+    height: 96px;
+    width: 96px;
+    font-size: 25pt;
+    margin-top: 128px;
+}
