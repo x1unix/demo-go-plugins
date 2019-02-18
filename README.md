@@ -1,0 +1,74 @@
+# FeedViewer
+
+## About
+
+This is a simple feed viewer project aims to demonstrate Go's plugin use-case.
+Feed sources are provided as separate libraries.
+
+## Installation and usage
+
+### Prerequisites
+
+- Go Compiler (1.9+)
+- UNIX system (preferable Linux)
+- [Dep](https://github.com/golang/dep/)
+- [Gilbert](https://github.com/x1unix/gilbert) task runner
+
+### Compilation
+
+- Clone this project
+```bash
+git clone https://github.com/x1unix/demo-go-plugins.git $GOPATH/src/github.com/x1unix/demo-go-plugins
+```
+- Install dependencies
+```bash
+cd $GOPATH/src/github.com/x1unix/demo-go-plugins
+dep ensure
+```
+- Build project
+```bash
+gilbert run build
+```
+
+Build result will be located at `build` directory
+
+- Run
+
+```
+gilbert run start   # or ./build/server
+```
+## Project structure
+
+- `server` - Main HTTP server with feed client
+- `sources/reddit` - Reddit plugin package
+- `sources/stackexchange` - StackExchange plugin package
+
+### Data sources
+
+Each data source is provided as separate plugin library that loaded by the server.
+Each plugin should have entrypoint function and data source signature.
+
+See `server/feed/sources` package for plugin load process information.
+
+List of loaded data sources defined in configuration file.
+
+### Configuration
+
+```js
+{
+  "listen": "127.0.0.1:8080",   // <-- Interface to listen
+  "debug": true,                // <-- Debug mode
+  "sources": {                  // <-- Plugins to load and plugin config
+    "./lib/reddit.so": {
+      
+      // Configuration for specific plugin
+      "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0",
+      "subReddits": ["all","popular", "original"]
+    },
+    "./lib/stackexchange.so": {
+      "site": "stackoverflow",
+      "tags": ["go", "javascript", "php"]
+    }
+  }
+}
+```
