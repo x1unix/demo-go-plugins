@@ -1,0 +1,75 @@
+:root {
+    --color-primary: rgb(52, 58, 64);
+    --color-accent: #eee;
+}
+
+.x-logo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 16px;
+}
+.x-logo__container {
+    display: inline-block;
+    background: tomato;
+    border-radius: 50%;
+    height: 48px;
+    width: 48px;
+    overflow: hidden;
+}
+.x-logo__img {
+    display: table;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.x-head__nav {
+    background: var(--color-primary);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: var(--color-accent);
+    justify-content: space-between;
+}
+
+.x-logo__title{
+    font-size: 18pt;
+    padding-left: 10px;
+}
+
+.x-sources-list {
+    list-style: none;
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+
+.x-source {
+    display: inline-block;
+}
+
+.x-source__btn {
+    display: inline-block;
+    box-sizing: border-box;
+    background: var(--color-accent);
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 10px;
+    padding: 1px 8px;
+    font-size: 10pt;
+    margin: 0 15px;
+    cursor: pointer;
+    text-align: center;
+    min-width: 64px;
+}
+
+.x-source__btn.active {
+    background: tomato;
+    color: var(--color-accent);
+    font-weight: bold;
+}
+
+.x-explore {
+    padding: 32px 10px;
+}

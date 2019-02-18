@@ -1,8 +1,69 @@
 <html>
     <head>
         <title>FeedViewer</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="/style.css" />
     </head>
     <body>
-    Hello world
+        <div id="app">
+            <header class="x-head">
+                <nav class="x-head__nav">
+                    <div class="x-logo">
+                        <span class="x-logo__container">
+                            <img src="https://raw.githubusercontent.com/x1unix/gilbert/master/docs/assets/gilbert.png" class="x-logo__img"/>
+                        </span>
+                        <span class="x-logo__title">FeedViewer</span>
+                    </div>
+                    <ul class="x-sources-list" v-if="sources">
+                        <li class="x-source" v-for="source in sources">
+                            <span class="x-source__btn" v-bind:class="{'active': current.source === source}">{{source}}</span>
+                        </li>
+                    </ul>
+                    <span class="x-section-selector">
+                        <select name="section" class="form-control x-section-selector__control" v-if="sections[current.source]">
+                            <option value="hot" v-for="section in sections[current.source]">{{section}}</option>
+                        </select>
+                    </span>
+                </nav>
+            </header>
+            <section class="jumbotron text-center" v-if="!sources && !error && !isLoading">
+                <div class="container">
+                    <h1 class="jumbotron-heading">No sources available</h1>
+                    <p class="lead text-muted">Install source library and add it to <code>config.json</code> file</p>
+                </div>
+            </section>
+            <section class="jumbotron text-center" v-if="error">
+                <div class="container">
+                    <h1 class="jumbotron-heading">{{error.title}}</h1>
+                    <p class="lead text-danger">{{error.message}}</p>
+                </div>
+            </section>
+
+            <div class="x-explore" v-if="current.source && current.section">
+                <div class="d-flex justify-content-center" v-if="isLoading">
+                    <div class="spinner-border x-spinner text-secondary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="x-posts container" v-if="current.posts">
+                    <div class="card x-post" v-for="post in current.posts">
+                        <h5 class="card-header">
+                            <a :href="post.url" target="_blank">{{post.title}}</a>
+                        </h5>
+                        <img v-if="post.imageUrl.length > 0" :src="post.imageUrl" class="card-img-top x-post__img" />
+                        <div class="card-body">
+                            <p class="card-text">
+                                {{post.text}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="/script.js"></script>
     </body>
 </html>
