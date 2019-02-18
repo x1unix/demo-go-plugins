@@ -2,7 +2,6 @@ package web
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/x1unix/demo-go-plugins/server/feed"
 	"net/http"
@@ -14,6 +13,7 @@ const (
 	afterIDParam    = "after"
 	sectionParam    = "section"
 	sourceNameParam = "sourceName"
+	defaultCount    = 30
 )
 
 func newRouter() *mux.Router {
@@ -48,12 +48,7 @@ func newRouter() *mux.Router {
 			return
 		}
 
-		section, selector, err := readSelectorParams(r)
-		if err != nil {
-			Error(err, http.StatusBadRequest, w)
-			return
-		}
-
+		section, selector := readSelectorParams(r)
 		posts, err := src.GetPosts(section, selector)
 		if err != nil {
 			Error(err, http.StatusInternalServerError, w)
@@ -76,17 +71,17 @@ func sourceFromRequest(r *http.Request) (feed.Source, error) {
 	return feed.GetSource(name)
 }
 
-func readSelectorParams(r *http.Request) (section string, selector feed.Selector, err error) {
+func readSelectorParams(r *http.Request) (section string, selector feed.Selector) {
 	v := mux.Vars(r)
 	section = v[sectionParam]
 
 	q := r.URL.Query()
 	if count, err := strconv.ParseUint(q.Get(countParam), 10, 32); err != nil {
-		return section, selector, fmt.Errorf("parameter '%s' should be unsigned int", countParam)
+		selector.Count = defaultCount
 	} else {
 		selector.Count = uint(count)
 	}
 
 	selector.AfterID = q.Get(afterIDParam)
-	return section, selector, nil
+	return section, selector
 }
