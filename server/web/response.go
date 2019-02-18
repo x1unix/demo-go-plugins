@@ -23,12 +23,10 @@ func Error(err error, code int, w http.ResponseWriter) {
 }
 
 func jsonResponse(data interface{}, code int, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		logrus.Error(err)
 		return
 	}
-
-	w.WriteHeader(code)
-	w.Header().Set("Content-Type", "application/json")
 }

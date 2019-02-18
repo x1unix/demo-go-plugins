@@ -3,7 +3,6 @@ package web
 import (
 	"context"
 	"fmt"
-	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/negroni"
 	"github.com/x1unix/demo-go-plugins/server/config"
@@ -25,13 +24,12 @@ func Load() error {
 }
 
 func createServer() *http.Server {
-	r := mux.NewRouter()
-	registerHandlers(r)
+	r := newRouter()
 	mw := negroni.New()
 	mw.Use(negroni.NewRecovery())
 	mw.Use(negroni.NewStatic(http.Dir(staticDir)))
 	mw.UseHandler(r)
-	return &http.Server{Addr: config.Main.Listen}
+	return &http.Server{Addr: config.Main.Listen, Handler: mw}
 }
 
 // Shutdown shuts down http server
