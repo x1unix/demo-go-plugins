@@ -1,4 +1,4 @@
-var app = new Vue({
+const app = new Vue({
     el: '#app',
     data: {
         sources: null,
@@ -34,6 +34,11 @@ var app = new Vue({
             }
 
             this.selectSection(this.sections[sourceName][0]);
+        },
+
+        onSectionChange() {
+            console.log('selection changed');
+            this.getPosts();
         },
 
         selectSection: async function(sectionName) {

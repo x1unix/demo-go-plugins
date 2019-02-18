@@ -20,8 +20,16 @@
                         </li>
                     </ul>
                     <span class="x-section-selector">
-                        <select name="section" class="form-control x-section-selector__control" v-if="sections[current.source]">
-                            <option value="hot" v-for="section in sections[current.source]">{{section}}</option>
+                        <select
+                                name="section"
+                                class="form-control x-section-selector__control"
+                                v-if="sections[current.source]"
+                                v-model="current.section"
+                                v-on:change="onSectionChange"
+                        >
+                            <option v-for="section in sections[current.source]" v-bind:value="section">
+                                {{section}}
+                            </option>
                         </select>
                     </span>
                 </nav>
@@ -54,8 +62,7 @@
                             <h5 class="card-title">
                                 <a :href="post.url" target="_blank">{{post.title}}</a>
                             </h5>
-                            <p class="card-text" v-if="post.text.length">
-                                {{post.text}}
+                            <p class="card-text" v-if="post.text.length" v-html="post.text">
                             </p>
                             <p class="card-text" v-if="!post.text.length">
                                 <i><a :href="post.url" target="_blank" class="text-muted">{{post.url}}</a></i>

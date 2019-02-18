@@ -9,6 +9,7 @@
     align-items: center;
     padding: 8px 16px;
     width: 20%;
+    min-width: 216px;
 }
 .x-logo__container {
     display: inline-block;
@@ -40,6 +41,7 @@
 
 .x-section-selector {
     width: 20%;
+    min-width: 216px;
 }
 
 .x-sources-list {
