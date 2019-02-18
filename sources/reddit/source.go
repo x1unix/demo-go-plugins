@@ -41,5 +41,6 @@ func (s *DataSource) Dispose() error {
 func newDataSource(cfg config) *DataSource {
 	return &DataSource{
 		client: geddit.NewSession(cfg.UserAgent),
+		cfg:    cfg,
 	}
 }
