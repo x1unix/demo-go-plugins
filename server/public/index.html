@@ -16,7 +16,13 @@
                     </div>
                     <ul class="x-sources-list" v-if="sources">
                         <li class="x-source" v-for="source in sources">
-                            <span class="x-source__btn" v-bind:class="{'active': current.source === source}">{{source}}</span>
+                            <span
+                                class="x-source__btn"
+                                v-bind:class="{'active': current.source === source}"
+                                v-on:click="selectSource(source)"
+                            >
+                                {{source}}
+                            </span>
                         </li>
                     </ul>
                     <span class="x-section-selector">

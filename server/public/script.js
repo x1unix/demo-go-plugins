@@ -16,6 +16,10 @@ const app = new Vue({
     },
     methods: {
         selectSource: async function(sourceName) {
+            if (sourceName === this.current.source) {
+                return
+            }
+
             this.isLoading = true;
             this.error = null;
             this.current.source = sourceName;
