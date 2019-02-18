@@ -17,7 +17,7 @@ func submissionsToPosts(subs []*geddit.Submission) feed.Posts {
 			CreatedAt:  s.DateCreated,
 		}
 
-		if s.ThumbnailURL != "self" && s.ThumbnailURL != "default" {
+		if s.ThumbnailURL != "self" && s.ThumbnailURL != "default" && s.ThumbnailURL != "nsfw" {
 			post.ImageURL = s.ThumbnailURL
 		}
 
