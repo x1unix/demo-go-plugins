@@ -33,6 +33,10 @@ func Load(sources Set) error {
 	return nil
 }
 
+func Dispose() {
+	feed.FlushSources()
+}
+
 func injectDataSource(sourceProvider feed.SourceProvider, cfg json.RawMessage) (err error) {
 	defer func() {
 		if r := recover(); r != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/negroni"
 	"github.com/x1unix/demo-go-plugins/server/config"
 	"net/http"
@@ -16,6 +17,7 @@ const staticDir = "public"
 // Load loads and starts http server
 func Load() error {
 	server = createServer()
+	logrus.Infof("HTTP server is listening '%s'", server.Addr)
 	if err := server.ListenAndServe(); err != nil {
 		return fmt.Errorf("failed to start HTTP server: %s", err)
 	}
