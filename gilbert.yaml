@@ -29,6 +29,12 @@ tasks:
       source: './sources/reddit'
       outputPath: '{{libDir}}/reddit.so'
       buildMode: plugin
+  - description: Build StackExchange plugin
+    plugin: build
+    params:
+      source: './sources/stackexchange'
+      outputPath: '{{libDir}}/stackexchange.so'
+      buildMode: plugin
 
   start:
     - if: 'file {{buildDir}}'
