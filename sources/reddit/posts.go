@@ -5,8 +5,6 @@ import (
 	"github.com/x1unix/demo-go-plugins/server/feed"
 )
 
-const noImage = "self"
-
 func submissionsToPosts(subs []*geddit.Submission) feed.Posts {
 	result := make(feed.Posts, 0, len(subs))
 	for _, s := range subs {
@@ -15,12 +13,11 @@ func submissionsToPosts(subs []*geddit.Submission) feed.Posts {
 			URL:        s.URL,
 			Title:      s.Title,
 			Text:       s.SelftextHTML,
-			ImageURL:   s.ThumbnailURL,
 			SourceType: name,
 			CreatedAt:  s.DateCreated,
 		}
 
-		if s.ThumbnailURL != noImage {
+		if s.ThumbnailURL != "self" && s.ThumbnailURL != "default" {
 			post.ImageURL = s.ThumbnailURL
 		}
 
