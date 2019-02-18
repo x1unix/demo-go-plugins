@@ -21,12 +21,12 @@ func (s *DataSource) Sections() []string {
 }
 
 func (s *DataSource) GetPosts(sectionName string, selector feed.Selector) (feed.Posts, error) {
-	questions, err := s.client.getQuestions(selector.Count, sectionName)
+	r, err := s.client.getQuestions(selector.Count, sectionName)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.questionsToPosts(questions), nil
+	return s.questionsToPosts(r.Items), nil
 }
 
 func (s *DataSource) Dispose() error {
