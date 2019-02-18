@@ -35,7 +35,7 @@
             <section class="jumbotron text-center" v-if="error">
                 <div class="container">
                     <h1 class="jumbotron-heading">{{error.title}}</h1>
-                    <p class="lead text-danger">{{error.message}}</p>
+                    <p class="lead text-danger"><code>{{error.message}}</code></p>
                 </div>
             </section>
 
@@ -45,19 +45,26 @@
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>
-
                 <div class="x-posts container" v-if="current.posts">
                     <div class="card x-post" v-for="post in current.posts">
-                        <h5 class="card-header">
-                            <a :href="post.url" target="_blank">{{post.title}}</a>
-                        </h5>
-                        <img v-if="post.imageUrl.length > 0" :src="post.imageUrl" class="card-img-top x-post__img" />
-                        <div class="card-body">
-                            <p class="card-text">
+                        <div class="x-post__img" v-if="post.imageUrl && post.imageUrl.length > 0">
+                            <img :src="post.imageUrl" />
+                        </div>
+                        <div class="x-post__body card-body">
+                            <h5 class="card-title">
+                                <a :href="post.url" target="_blank">{{post.title}}</a>
+                            </h5>
+                            <p class="card-text" v-if="post.text.length">
                                 {{post.text}}
+                            </p>
+                            <p class="card-text" v-if="!post.text.length">
+                                <i><a :href="post.url" target="_blank" class="text-muted">{{post.url}}</a></i>
                             </p>
                         </div>
                     </div>
+                </div>
+                <div class="d-flex justify-content-center x-explore__more" v-if="!error && !isLoading">
+                    <button class="btn btn-primary" @click="getPosts(true);">Load more</button>
                 </div>
             </div>
         </div>

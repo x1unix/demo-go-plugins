@@ -7,13 +7,82 @@ var app = new Vue({
             source: null,
             section: null,
             lastItem: null,
-            count: 30,
+            maxCount: 30,
             posts: null,
+            showNext: false,
         },
         isLoading: false,
         error: null
     },
-    methods: {},
+    methods: {
+        selectSource: async function(sourceName) {
+            this.isLoading = true;
+            this.error = null;
+            this.current.source = sourceName;
+            if (!this.sections[sourceName]) {
+                try {
+                    const resp = await axios.get(`/sources/${sourceName}/sections`);
+                    this.sections[sourceName] = resp.data.sections;
+                } catch (ex) {
+                    this.isLoading = false;
+                    this.error = {
+                        title: "Failed to get sections list",
+                        message: formatErrorMessage(ex)
+                    };
+                    return;
+                }
+            }
+
+            this.selectSection(this.sections[sourceName][0]);
+        },
+
+        selectSection: async function(sectionName) {
+            if (!this.sections[this.current.source].includes(sectionName)) {
+                console.warn(`section ${sectionName} is not present in source ${this.current.source}`);
+            }
+
+            this.current.section = sectionName;
+            this.getPosts();
+        },
+
+        getPosts: async function(loadMore=false) {
+            this.isLoading = true;
+            this.error = null;
+
+            let reqUrl = `/sources/${this.current.source}/sections/${this.current.section}?count=${this.current.maxCount}`;
+
+            if (!loadMore) {
+                this.current.posts = [];
+            } else {
+                reqUrl += `&after=${this.current.lastItem}`;
+            }
+
+            try {
+                const resp = await axios.get(reqUrl);
+                this.isLoading = false;
+                this.current.posts.push(...resp.data.posts);
+                this.updatePostsUI();
+            } catch (ex) {
+                this.isLoading = false;
+                this.error = {
+                    title: "Failed to get posts",
+                    message: formatErrorMessage(ex)
+                };
+            }
+        },
+
+        updatePostsUI: function () {
+            const posts = this.current.posts;
+            if (!posts.length) {
+                this.current.showNext = false;
+                this.current.lastItem = null;
+                return;
+            }
+
+            this.current.showNext = (posts.length >= this.current.maxCount);
+            this.current.lastItem = posts[posts.length - 1].id;
+        }
+    },
     created: async function() {
         try {
             this.error = null;
@@ -35,57 +104,6 @@ var app = new Vue({
             return;
         }
 
-
-    },
-    selectSource: async function(sourceName) {
-        this.isLoading = true;
-        this.error = null;
-        this.current.source = sourceName;
-        if (!this.sections[sourceName]) {
-            try {
-                const resp = await axios.get(`/sources/${sourceName}/sections`);
-                this.sections[sourceName] = resp.data.sections;
-            } catch (ex) {
-                this.isLoading = false;
-                this.error = {
-                    title: "Failed to get sections list",
-                    message: formatErrorMessage(ex)
-                };
-                return;
-            }
-        }
-
-        this.selectSection(this.sections[sourceName][0]);
-    },
-
-    selectSection: async function(sectionName) {
-        if (!this.sections[this.current.source][sectionName]) {
-            console.warn(`section ${sectionName} is not present in source ${this.current.source}`);
-        }
-
-        this.current.section = sectionName;
-        this.getPosts();
-    },
-
-    getPosts: async function(loadMore=false) {
-        this.isLoading = true;
-        this.error = null;
-
-        if (!loadMore) {
-            this.current.posts = [];
-        }
-
-        try {
-            const resp = await axios.get(`/sources/${this.current.source}/sections/${this.current.section}?count=${this.current.count}`);
-            this.isLoading = false;
-            this.current.posts = resp.data.posts;
-        } catch (ex) {
-            this.isLoading = false;
-            this.error = {
-                title: "Failed to get posts",
-                message: formatErrorMessage(ex)
-            };
-        }
 
     }
 });
