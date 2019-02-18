@@ -64,7 +64,8 @@ func loadProviderFromPlugin(fileName string) (feed.SourceProvider, error) {
 		return nil, fmt.Errorf("cannot find entrypoint function '%s' in library (%s)", pluginEntrypoint, err)
 	}
 
-	sourceProvider, ok := fnPtr.(feed.SourceProvider)
+	// We should explicitly define type, since Go doesn't recognise type aliases here
+	sourceProvider, ok := fnPtr.(func(rawCfg json.RawMessage) (feed.Source, error))
 	if !ok {
 		return nil, fmt.Errorf("invalid '%s' function signature, expected %T (got %T)", pluginEntrypoint, sourceProvider, fnPtr)
 	}
