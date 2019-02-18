@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/jzelinskie/geddit"
 	"github.com/x1unix/demo-go-plugins/server/feed"
+	"html"
+	"strings"
 )
 
 func submissionsToPosts(subs []*geddit.Submission) feed.Posts {
@@ -12,7 +14,7 @@ func submissionsToPosts(subs []*geddit.Submission) feed.Posts {
 			ID:         s.ID,
 			URL:        s.URL,
 			Title:      s.Title,
-			Text:       s.SelftextHTML,
+			Text:       unescapeContent(s.SelftextHTML),
 			SourceType: name,
 			CreatedAt:  s.DateCreated,
 		}
@@ -25,4 +27,10 @@ func submissionsToPosts(subs []*geddit.Submission) feed.Posts {
 	}
 
 	return result
+}
+
+func unescapeContent(content string) string {
+	r := html.UnescapeString(content)
+	r = strings.Replace(r, `\"`, `"`, -1)
+	return r
 }
