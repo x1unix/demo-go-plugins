@@ -2,6 +2,7 @@ version: "1.0"
 vars:
   appVersion: 1.0.0
   buildDir: '{{PROJECT}}/build'
+  libDir: '{{buildDir}}/lib'
 tasks:
   build:
   - if: 'file {{buildDir}}'
@@ -26,7 +27,7 @@ tasks:
     plugin: build
     params:
       source: './sources/reddit'
-      outputPath: '{{buildDir}}/sources/reddit.so'
+      outputPath: '{{libDir}}/reddit.so'
       buildMode: plugin
 
   start:
