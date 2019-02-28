@@ -65,7 +65,7 @@ func loadProviderFromPlugin(fileName string) (feed.SourceProvider, error) {
 	}
 
 	// We should explicitly define type, since Go doesn't recognise type aliases here
-	sourceProvider, ok := fnPtr.(func(rawCfg json.RawMessage) (feed.Source, error))
+	sourceProvider, ok := fnPtr.(func(rawCfg json.RawMessage) (feed.SourceReader, error))
 	if !ok {
 		return nil, fmt.Errorf("invalid '%s' function signature, expected %T (got %T)", pluginEntrypoint, sourceProvider, fnPtr)
 	}

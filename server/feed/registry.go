@@ -5,15 +5,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var loadedSources = make(map[string]Source)
+var loadedSources = make(map[string]SourceReader)
 
 // AddSource registers a new external feed source
-func AddSource(src Source) {
+func AddSource(src SourceReader) {
 	loadedSources[src.Name()] = src
 }
 
 // GetSource gets source by name
-func GetSource(name string) (Source, error) {
+func GetSource(name string) (SourceReader, error) {
 	src, ok := loadedSources[name]
 	if !ok {
 		return nil, fmt.Errorf("unknown feed source '%s'", name)

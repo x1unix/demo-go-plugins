@@ -65,7 +65,7 @@ func newRouter() *mux.Router {
 	return r
 }
 
-func sourceFromRequest(r *http.Request) (feed.Source, error) {
+func sourceFromRequest(r *http.Request) (feed.SourceReader, error) {
 	v := mux.Vars(r)
 	name := v[sourceNameParam]
 	return feed.GetSource(name)

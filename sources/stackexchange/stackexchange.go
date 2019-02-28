@@ -14,7 +14,7 @@ type config struct {
 // NewDataSource creates a new data source
 //
 // This method called by server on extension load
-func NewDataSource(rawCfg json.RawMessage) (feed.Source, error) {
+func NewDataSource(rawCfg json.RawMessage) (feed.SourceReader, error) {
 	cfg := new(config)
 	if err := json.Unmarshal(rawCfg, cfg); err != nil {
 		return nil, fmt.Errorf("invalid configuration format (%s)", err)
