@@ -1,50 +1,64 @@
-version: "1.0"
+version: 1.0
 vars:
-  appVersion: 1.0.0
-  buildDir: '{{PROJECT}}/build'
-  libDir: '{{buildDir}}/lib'
-tasks:
-  build:
-  - if: 'file {{buildDir}}'
-    description: Clean build directory
-    plugin: shell
-    params:
-      command: 'rm -rf {{buildDir}} && mkdir {{buildDir}}'
-  - description: Build server
-    plugin: build
-    params:
-      source: './server'
-      outputPath: '{{buildDir}}/server'
-  - description: Copy config file
-    plugin: shell
-    params:
-      command: 'cp ./server/config.json {{buildDir}}/config.json'
-  - description: Copy assets
-    plugin: shell
-    params:
-      command: 'cp -rf ./server/public {{buildDir}}/public'
-  - description: Build reddit plugin
-    plugin: build
-    params:
-      source: './sources/reddit'
-      outputPath: '{{libDir}}/reddit.so'
-      buildMode: plugin
-  - description: Build StackExchange plugin
-    plugin: build
-    params:
-      source: './sources/stackexchange'
-      outputPath: '{{libDir}}/stackexchange.so'
-      buildMode: plugin
+  app_version: '1.0.0'
+  build_dir: '{{PROJECT}}/build'
+  lib_dir: '{{build_dir}}/lib'
+  server_dir: './server'
 
-  start:
-    - if: 'file {{buildDir}}'
+mixins:
+  build-lib:
+    - description: 'build {{name}} library'
+      plugin: build
+      params:
+        source: './sources/{{name}}'
+        outputPath: '{{lib_dir}}/{{name}}.so'
+        buildMode: plugin
+
+  build-clean:
+    - if: '[ -d {{ build_dir }} ]'
+      description: 'clean build directory'
       plugin: shell
       params:
-        command: '{{buildDir}}/server'
-        workDir: '{{buildDir}}'
+        command: 'rm -rf {{build_dir}}'
+    - if: '[ ! -d {{build_dir}} ]'
+      description: 'create build directory'
+      plugin: shell
+      params:
+        command: 'mkdir {{build_dir}}'
+
+  copy-assets:
+    - description: 'copy config file'
+      plugin: shell
+      params:
+        command: 'cp {{server_dir}}/config.json {{build_dir}}/config.json'
+    - description: 'copy assets'
+      plugin: shell
+      params:
+        command: 'cp -rf {{server_dir}}/public {{build_dir}}/public'
+
+
+tasks:
+  build:
+    - mixin: build-clean
+    - mixin: copy-assets
+    - description: Build server
+      plugin: build
+      params:
+        source: '{{server_dir}}'
+        outputPath: '{{build_dir}}/server'
+    - mixin: build-lib
+      vars:
+        name: 'reddit'
+    - mixin: build-lib
+      vars:
+        name: 'stackexchange'
+
+  start:
+    - if: 'file {{build_dir}}'
+      plugin: shell
+      params:
+        command: '{{build_dir}}/server'
+        workDir: '{{build_dir}}'
+
   clean:
-  - if: file ./vendor
-    description: Remove vendor files
-    plugin: shell
-    params:
-      command: rm -rf ./vendor
+  - mixin: build-clean
