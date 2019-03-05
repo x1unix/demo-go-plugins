@@ -41,7 +41,7 @@ tasks:
   build:
     - mixin: build-clean
     - mixin: copy-assets
-    - description: Build server
+    - description: build server
       plugin: build
       params:
         source: '{{server_dir}}'
