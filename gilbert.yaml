@@ -20,13 +20,13 @@ mixins:
       plugin: shell
       params:
         command: 'rm -rf {{build_dir}}'
+
+  copy-assets:
     - if: '[ ! -d {{build_dir}} ]'
       description: 'create build directory'
       plugin: shell
       params:
         command: 'mkdir {{build_dir}}'
-
-  copy-assets:
     - description: 'copy config file'
       plugin: shell
       params:
