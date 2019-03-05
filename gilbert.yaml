@@ -54,7 +54,7 @@ tasks:
         name: 'stackexchange'
 
   start:
-    - if: 'file {{build_dir}}'
+    - if: '[ -f {{build_dir}}/server ]'
       plugin: shell
       params:
         command: '{{build_dir}}/server'
