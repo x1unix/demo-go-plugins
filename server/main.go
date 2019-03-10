@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"os/signal"
+
 	"github.com/sirupsen/logrus"
 	"github.com/x1unix/demo-go-plugins/server/config"
 	"github.com/x1unix/demo-go-plugins/server/feed/sources"
 	"github.com/x1unix/demo-go-plugins/server/web"
-	"os"
-	"os/signal"
 )
 
 const defaultConfigFile = "config.json"

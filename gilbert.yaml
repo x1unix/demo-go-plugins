@@ -59,7 +59,7 @@ tasks:
     - mixin: copy-assets
     - plugin: watch
       params:
-        path: './'
+        path: './...'
         ignore:
           - 'docs/*'
           - 'build/*'
