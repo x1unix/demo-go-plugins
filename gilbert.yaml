@@ -35,9 +35,38 @@ mixins:
       plugin: shell
       params:
         command: 'cp -rf {{server_dir}}/public {{build_dir}}/public'
+  watch:
+    - description: build server
+      plugin: build
+      params:
+        source: '{{server_dir}}'
+        outputPath: '{{build_dir}}/server'
+    - mixin: build-lib
+      vars:
+        name: 'reddit'
+    - mixin: build-lib
+      vars:
+        name: 'stackexchange'
+    - plugin: shell
+      params:
+        workDir: '{{build_dir}}'
+        command: '{{build_dir}}/server'
 
 
 tasks:
+  watch:
+    - mixin: build-clean
+    - mixin: copy-assets
+    - plugin: watch
+      params:
+        path: './'
+        ignore:
+          - 'docs/*'
+          - 'build/*'
+          - 'build/lib/*'
+        run:
+          mixin: watch
+
   build:
     - mixin: build-clean
     - mixin: copy-assets
