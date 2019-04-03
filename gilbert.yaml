@@ -13,14 +13,12 @@ mixins:
         source: './sources/{{name}}'
         outputPath: '{{lib_dir}}/{{name}}.so'
         buildMode: plugin
-
   build-clean:
     - if: '[ -d {{ build_dir }} ]'
       description: 'clean build directory'
       plugin: shell
       params:
         command: 'rm -rf {{build_dir}}'
-
   copy-assets:
     - if: '[ ! -d {{build_dir}} ]'
       description: 'create build directory'
@@ -52,7 +50,6 @@ mixins:
         workDir: '{{build_dir}}'
         command: '{{build_dir}}/server'
 
-
 tasks:
   watch:
     - mixin: build-clean
@@ -64,9 +61,11 @@ tasks:
           - 'docs/*'
           - 'build/*'
           - 'build/lib/*'
+          - '.git'
+          - 'go.mod'
+          - 'go.sum'
         run:
           mixin: watch
-
   build:
     - mixin: build-clean
     - mixin: copy-assets
@@ -81,13 +80,11 @@ tasks:
     - mixin: build-lib
       vars:
         name: 'stackexchange'
-
   start:
     - if: '[ -f {{build_dir}}/server ]'
       plugin: shell
       params:
         command: '{{build_dir}}/server'
         workDir: '{{build_dir}}'
-
   clean:
   - mixin: build-clean
