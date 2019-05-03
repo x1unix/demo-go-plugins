@@ -8,7 +8,7 @@ vars:
 mixins:
   build-lib:
     - description: 'build {{name}} library'
-      plugin: build
+      action: build
       params:
         source: './sources/{{name}}'
         outputPath: '{{lib_dir}}/{{name}}.so'
@@ -16,26 +16,26 @@ mixins:
   build-clean:
     - if: '[ -d {{ build_dir }} ]'
       description: 'clean build directory'
-      plugin: shell
+      action: shell
       params:
         command: 'rm -rf {{build_dir}}'
   copy-assets:
     - if: '[ ! -d {{build_dir}} ]'
       description: 'create build directory'
-      plugin: shell
+      action: shell
       params:
         command: 'mkdir {{build_dir}}'
     - description: 'copy config file'
-      plugin: shell
+      action: shell
       params:
         command: 'cp {{server_dir}}/config.json {{build_dir}}/config.json'
     - description: 'copy assets'
-      plugin: shell
+      action: shell
       params:
         command: 'cp -rf {{server_dir}}/public {{build_dir}}/public'
   watch:
     - description: build server
-      plugin: build
+      action: build
       params:
         source: '{{server_dir}}'
         outputPath: '{{build_dir}}/server'
@@ -45,7 +45,7 @@ mixins:
     - mixin: build-lib
       vars:
         name: 'stackexchange'
-    - plugin: shell
+    - action: shell
       params:
         workDir: '{{build_dir}}'
         command: '{{build_dir}}/server'
@@ -54,7 +54,7 @@ tasks:
   watch:
     - mixin: build-clean
     - mixin: copy-assets
-    - plugin: watch
+    - action: watch
       params:
         path: './...'
         ignore:
@@ -70,7 +70,7 @@ tasks:
     - mixin: build-clean
     - mixin: copy-assets
     - description: build server
-      plugin: build
+      action: build
       params:
         source: '{{server_dir}}'
         outputPath: '{{build_dir}}/server'
@@ -82,7 +82,7 @@ tasks:
         name: 'stackexchange'
   start:
     - if: '[ -f {{build_dir}}/server ]'
-      plugin: shell
+      action: shell
       params:
         command: '{{build_dir}}/server'
         workDir: '{{build_dir}}'
