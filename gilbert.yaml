@@ -1,6 +1,7 @@
 version: 1.0
 vars:
   app_version: '1.0.0'
+  commit: '{% git log --format=%H -n 1 %}'
   build_dir: '{{PROJECT}}/build'
   lib_dir: '{{build_dir}}/lib'
   server_dir: './server'
@@ -74,6 +75,9 @@ tasks:
       params:
         source: '{{server_dir}}'
         outputPath: '{{build_dir}}/server'
+        variables:
+          'main.version': '{{app_version}}'
+          'main.commit': '{{commit}}'
     - mixin: build-lib
       vars:
         name: 'reddit'
