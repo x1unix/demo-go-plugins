@@ -8,9 +8,14 @@ import (
 
 const name = "reddit"
 
+type redditReader interface {
+	// SubredditSubmissions gets posts for subreddit
+	SubredditSubmissions(string, geddit.PopularitySort, geddit.ListingOptions) ([]*geddit.Submission, error)
+}
+
 type DataSource struct {
 	cfg    config
-	client *geddit.Session
+	client redditReader
 }
 
 func (s *DataSource) Name() string {
