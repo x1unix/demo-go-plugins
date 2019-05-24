@@ -10,8 +10,8 @@ import (
 )
 
 type event struct {
-	Type string
-	Data string
+	Type string `json:"type"`
+	Data string `json:"data"`
 }
 
 func (e *event) send(conn *websocket.Conn) error {
@@ -36,8 +36,15 @@ func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) (
 	log := ctx.Log()
 	mux := http.NewServeMux()
 
-	// websocket endpoint
+	script := getConnectionScript(a.params.Address, a.params.Timeout)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Add("content-type", `application/javascript; charset="utf-8"`)
+		w.Write(script)
+	})
+
+	// websocket connect
+	mux.HandleFunc("/connect", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := a.upg.Upgrade(w, r, nil)
 		if err != nil {
 			log.Errorf("live-reload: failed to create socket, %s", err)
