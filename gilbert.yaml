@@ -5,13 +5,21 @@ plugins:
 
 vars:
   app_version: '1.0.0'
-  commit: '{% git log --format=%H -n 1 %}'
   build_dir: '{{PROJECT}}/build'
   lib_dir: '{{build_dir}}/lib'
   server_dir: './server'
   watcher_addr: 'localhost:4800'
 
 mixins:
+  build-server:
+    - description: build server
+      action: build
+      params:
+        source: '{{server_dir}}'
+        outputPath: '{{build_dir}}/server'
+        variables:
+          'main.version': '{{app_version}}'
+          'main.commit': '{% git log --format=%H -n 1 %}'
   build-lib:
     - description: 'build {{name}} library'
       action: build
@@ -43,11 +51,7 @@ mixins:
         command: 'cp -rf {{server_dir}}/public {{build_dir}}'
 
   rebuild:
-    - description: build server
-      action: build
-      params:
-        source: '{{server_dir}}'
-        outputPath: '{{build_dir}}/server'
+    - mixin: build-server
     - mixin: build-lib
       vars:
         name: 'reddit'
@@ -67,11 +71,7 @@ tasks:
   build:
     - mixin: clean
     - mixin: copy-assets
-    - description: build server
-      action: build
-      params:
-        source: '{{server_dir}}'
-        outputPath: '{{build_dir}}/server'
+    - mixin: build-server
     - mixin: build-lib
       vars:
         name: 'reddit'
