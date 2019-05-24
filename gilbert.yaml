@@ -4,7 +4,7 @@ imports:
   - ./docs/common.yaml
 
 plugins:
-  - go://./jobs
+  - go://./docs/actions
 
 vars:
   app_version: '1.0.0'
