@@ -10,21 +10,15 @@ Feed sources are provided as separate libraries.
 
 ### Prerequisites
 
-- Go Compiler (1.9+)
+- Go (1.12+)
 - UNIX system (preferable Linux)
-- [Dep](https://github.com/golang/dep/)
 - [Gilbert](https://github.com/x1unix/gilbert) task runner
 
 ### Compilation
 
 - Clone this project
 ```bash
-git clone https://github.com/x1unix/demo-go-plugins.git $GOPATH/src/github.com/x1unix/demo-go-plugins
-```
-- Install dependencies
-```bash
-cd $GOPATH/src/github.com/x1unix/demo-go-plugins
-dep ensure
+git clone https://github.com/x1unix/demo-go-plugins.git
 ```
 - Build project
 ```bash
@@ -38,11 +32,17 @@ Build result will be located at `build` directory
 ```
 gilbert run start   # or ./build/server
 ```
+
+or run in **watch** mode with `gilbert run watch`
+
+
 ## Project structure
 
 - `server` - Main HTTP server with feed client
 - `sources/reddit` - Reddit plugin package
 - `sources/stackexchange` - StackExchange plugin package
+- `docs` - Misc files
+  - `actions` - Helper project actions
 
 ### Data sources
 
