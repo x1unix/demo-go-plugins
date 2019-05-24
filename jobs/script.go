@@ -20,10 +20,6 @@ const js = `
 			console.info("live-reload: reloading...");
 			setTimeout(() => w.location.reload(), TIMEOUT);
 			break;
-		case "shutdown":
-			console.info("live-reload: server sent shutdown event");
-			socket.close();
-			break;
 		default:
 			console.warn("live-reload: unknown message type", msg);
 			break;
