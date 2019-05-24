@@ -3,7 +3,8 @@
 
 ## About
 
-This is a simple feed viewer project aims to demonstrate Go's plugin use-case.
+This is a simple feed viewer project aims to demonstrate Gilbert use-case.
+This project contains a simple PWA application and a few Go plugins.
 Feed sources are provided as separate libraries.
 
 ## Installation and usage
