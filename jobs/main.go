@@ -20,7 +20,7 @@ func GetPluginName() string {
 func GetPluginActions() sdk.Actions {
 	return sdk.Actions{
 		"start-server": NewReloadServerAction,
-		"reload":       NewReloadTriggerAction,
+		"trigger":      NewReloadTriggerAction,
 	}
 }
 

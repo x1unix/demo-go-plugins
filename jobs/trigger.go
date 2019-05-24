@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	sdk "github.com/go-gilbert/gilbert-sdk"
-	"github.com/gorilla/websocket"
 )
 
 // ReloadTriggerAction triggers live-reload server
@@ -48,20 +47,12 @@ func (a *ReloadTriggerAction) Cancel(ctx sdk.JobContextAccessor) error {
 
 // NewReloadTriggerAction creates a new reload trigger action
 func NewReloadTriggerAction(scope sdk.ScopeAccessor, ap sdk.ActionParams) (sdk.ActionHandler, error) {
-	p := params{
-		Address: defaultAddr,
-	}
-
-	if err := ap.Unmarshal(&p); err != nil {
+	p, err := parseParams(scope, ap)
+	if err != nil {
 		return nil, err
 	}
 
-	return &ReloadServerAction{
+	return &ReloadTriggerAction{
 		params: p,
-		msgs:   make(chan event),
-		upg: websocket.Upgrader{
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
-		},
 	}, nil
 }

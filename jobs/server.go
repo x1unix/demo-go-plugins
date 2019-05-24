@@ -34,43 +34,49 @@ type ReloadServerAction struct {
 }
 
 // Call implements sdk.ActionHandler
-func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) error {
+func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) (err error) {
 	log := ctx.Log()
 	mux := http.NewServeMux()
 
 	script := getConnectionScript(a.params.Address, a.params.Timeout)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
 		w.Header().Add("content-type", `application/javascript; charset="utf-8"`)
+		w.WriteHeader(http.StatusOK)
 		w.Write(script)
 	})
 
 	// websocket connect
 	mux.HandleFunc("/connect", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := a.upg.Upgrade(w, r, nil)
+		defer conn.Close()
 		if err != nil {
-			log.Errorf("live-reload: failed to create socket, %s", err)
+			ctx.Log().Errorf("live-reload: failed to create socket, %s", err)
 			a.Cancel(ctx)
 			go ctx.Result(err) // Pass error to task runner
 			return
 		}
 
-		log.Infof("live-reload: connected to %s", conn.RemoteAddr())
+		ctx.Log().Infof("live-reload: connected to %s", conn.RemoteAddr())
 		for {
-			select {
-			case e := <-a.msgs:
-				log.Debug("live.reload: received reload signal")
-				if err := e.send(conn); err != nil {
-					log.Errorf("live-reload: failed to send reload signal, %s", err)
-				}
-			case <-ctx.Context().Done():
-				log.Debug("live.reload: received shutdown signal")
-				e := event{Type: "shutdown"}
-				if err := e.send(conn); err != nil {
-					log.Errorf("live-reload: failed to send stop signal to consumer, %s", err)
-				}
+			// _, _, err := conn.ReadMessage()
+			// if err != nil {
+			// 	break
+			// }
+
+			e, ok := <-a.msgs
+			if !ok {
+				break
+			}
+
+			ctx.Log().Debug("live.reload: received reload signal")
+			if err := e.send(conn); err != nil {
+				ctx.Log().Errorf("live-reload: failed to send reload signal, %s", err)
+				conn.Close()
+				break
 			}
 		}
+
+		ctx.Log().Infof("live-reload: disconnect from %s", conn.RemoteAddr())
 	})
 
 	// reload notifier
@@ -87,7 +93,6 @@ func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) e
 
 	log.Infof("live-reload: started server at '%s'", a.params.Address)
 	if err := a.srv.ListenAndServe(); err != nil {
-		close(a.msgs)
 		return fmt.Errorf("failed to start reload server, %s", err)
 	}
 
@@ -97,27 +102,43 @@ func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) e
 // Cancel shutdowns server
 func (a *ReloadServerAction) Cancel(ctx sdk.JobContextAccessor) error {
 	ctx.Log().Debug("live-reload: stop server")
-	close(a.msgs)
 	return a.srv.Shutdown(ctx.Context())
 }
 
 // NewReloadServerAction creates a new live-reload start handler
 func NewReloadServerAction(scope sdk.ScopeAccessor, ap sdk.ActionParams) (sdk.ActionHandler, error) {
+	p, err := parseParams(scope, ap)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ReloadServerAction{
+		params: p,
+		msgs:   make(chan event, 5),
+		upg: websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+			CheckOrigin: func(r *http.Request) bool {
+				// Force allow any origins for demo purposes
+				return true
+			},
+		},
+	}, nil
+}
+
+func parseParams(scope sdk.ScopeAccessor, ap sdk.ActionParams) (params, error) {
 	p := params{
 		Address: defaultAddr,
 		Timeout: sdk.Period(1000),
 	}
 
 	if err := ap.Unmarshal(&p); err != nil {
-		return nil, err
+		return p, err
 	}
 
-	return &ReloadServerAction{
-		params: p,
-		msgs:   make(chan event),
-		upg: websocket.Upgrader{
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
-		},
-	}, nil
+	if err := scope.Scan(&p.Address); err != nil {
+		return p, err
+	}
+
+	return p, nil
 }

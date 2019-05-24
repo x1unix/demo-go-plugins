@@ -7,12 +7,13 @@ import (
 )
 
 const js = `
-(function(l) {
+(function(w) {
 	const ADDR = "ws://%s/connect";
 	const TIMEOUT = %d;
 
 	console.log("live-reload: connecting to " + ADDR + " ...");
-	const sock = new WebSocket(ADDR);
+	const socket = new WebSocket(ADDR);
+	w.addEventListener('beforeunload', () => socket.close());
 	socket.onopen = () => {
 		console.log("live-reload: successfully connected to " + ADDR);
 	};
@@ -26,7 +27,7 @@ const js = `
 			switch (msg.type) {
 			case "reload":
 				console.info("live-reload: reloading...");
-				setTimeout(() => l.reload(), TIMEOUT);
+				setTimeout(() => w.location.reload(), TIMEOUT);
 				break;
 			case "shutdown":
 				console.info("live-reload: server sent shutdown event");
@@ -40,7 +41,7 @@ const js = `
 			console.error("live-reload: failed to parse message, " + err.message);
 		}
 	};
-})(window.location)
+})(window)
 `
 
 func getConnectionScript(addr string, timeout sdk.Period) []byte {
