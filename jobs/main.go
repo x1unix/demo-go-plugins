@@ -22,7 +22,7 @@ func NewReloadServerAction(scope sdk.ScopeAccessor, ap sdk.ActionParams) (sdk.Ac
 
 	return &ReloadServerAction{
 		params: p,
-		msgs:   make(chan bool, 5),
+		msgs:   make(chan event),
 		upg: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,

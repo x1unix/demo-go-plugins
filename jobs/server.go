@@ -27,7 +27,7 @@ func (e *event) send(conn *websocket.Conn) error {
 type ReloadServerAction struct {
 	upg    websocket.Upgrader
 	srv    *http.Server
-	msgs   chan bool
+	msgs   chan event
 	params params
 }
 
@@ -35,6 +35,8 @@ type ReloadServerAction struct {
 func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) (err error) {
 	log := ctx.Log()
 	mux := http.NewServeMux()
+
+	// websocket endpoint
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := a.upg.Upgrade(w, r, nil)
 		if err != nil {
@@ -47,20 +49,28 @@ func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) (
 		log.Infof("live-reload: connected to %s", conn.RemoteAddr())
 		for {
 			select {
-			case <-a.msgs:
-				e := event{Type: "refresh"}
+			case e := <-a.msgs:
+				log.Debug("live.reload: received reload signal")
 				if err := e.send(conn); err != nil {
 					log.Errorf("live-reload: failed to send reload signal, %s", err)
 				}
 			case <-ctx.Context().Done():
+				log.Debug("live.reload: received shutdown signal")
 				e := event{Type: "shutdown"}
 				if err := e.send(conn); err != nil {
 					log.Errorf("live-reload: failed to send stop signal to consumer, %s", err)
 				}
 			}
 		}
-
 	})
+
+	// reload notifier
+	mux.HandleFunc("/reload", func(w http.ResponseWriter, r *http.Request) {
+		log.Debug("live-reload: send reload signal")
+		a.msgs <- event{Type: "reload"}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
 	a.srv = &http.Server{
 		Addr:    a.params.Address,
 		Handler: mux,
