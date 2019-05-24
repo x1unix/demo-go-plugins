@@ -5,6 +5,10 @@ BUILD_DIR := $(PROJECT)/build
 LIB_DIR := $(BUILD_DIR)/lib
 SERVER_DIR := ./server
 
+# packages to cover
+PKGS := ./sources/reddit \
+	./sources/stackexchange
+
 LIBS := reddit \
 	stackexchange
 
@@ -52,3 +56,13 @@ watch:
 	echo "Tracking changes in '$(PROJECT)/server'..."; \
 	inotifywait -mrq -e create -e modify $(PROJECT)/server | \
 	while read file; do (echo "Changed: $$file"; make all&) done
+
+.PHONY: cover
+cover:
+	@if ! command -v "gocov" > /dev/null; then \
+		echo "GoCov not found, installing..."; \
+		go install github.com/axw/gocov/gocov; \
+	fi;
+
+	@$(foreach pkg,$(PKGS), go test -coverprofile=/tmp/cover.out $(pkg);\
+	rm /tmp/cover.out;)
