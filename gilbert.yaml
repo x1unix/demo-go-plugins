@@ -58,7 +58,17 @@ tasks:
   build:
     - mixin: clean
     - mixin: copy-assets
-    - mixin: rebuild
+    - description: build server
+      action: build
+      params:
+        source: '{{server_dir}}'
+        outputPath: '{{build_dir}}/server'
+    - mixin: build-lib
+      vars:
+        name: 'reddit'
+    - mixin: build-lib
+      vars:
+        name: 'stackexchange'
   cover:
     - action: cover
       params:
