@@ -14,7 +14,13 @@ import (
 
 const defaultConfigFile = "config.json"
 
+var (
+	version = "dev"
+	commit  = "local build"
+)
+
 func main() {
+	fmt.Printf("FeedViewer version %s (%s)\n", version, commit)
 	if err := bootstrap(); err != nil {
 		logrus.Fatalf("failed to start service, %s", err)
 		return
