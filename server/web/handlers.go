@@ -2,10 +2,11 @@ package web
 
 import (
 	"errors"
-	"github.com/gorilla/mux"
-	"github.com/x1unix/demo-go-plugins/server/feed"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/x1unix/demo-go-plugins/server/feed"
 )
 
 const (
