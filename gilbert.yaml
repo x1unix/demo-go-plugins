@@ -1,7 +1,10 @@
 version: 1.0
   
+imports:
+  - ./docs/common.yaml
+
 plugins:
-  - go://./jobs?rebuild=true
+  - go://./jobs
 
 vars:
   app_version: '1.0.0'
@@ -20,13 +23,14 @@ mixins:
         variables:
           'main.version': '{{app_version}}'
           'main.commit': '{% git log --format=%H -n 1 %}'
-  build-lib:
-    - description: 'build {{name}} library'
-      action: build
-      params:
-        source: './sources/{{name}}'
-        outputPath: '{{lib_dir}}/{{name}}.so'
-        buildMode: plugin
+  
+  build-libs:
+    - mixin: build-lib
+      vars:
+        name: 'reddit'
+    - mixin: build-lib
+      vars:
+        name: 'stackexchange'
 
   clean:
     - if: '[ -d {{ build_dir }} ]'
@@ -52,12 +56,7 @@ mixins:
 
   rebuild:
     - mixin: build-server
-    - mixin: build-lib
-      vars:
-        name: 'reddit'
-    - mixin: build-lib
-      vars:
-        name: 'stackexchange'
+    - mixin: build-libs
     - mixin: copy-assets
     - action: 'live-reload:trigger'
       params:
@@ -72,12 +71,7 @@ tasks:
     - mixin: clean
     - mixin: copy-assets
     - mixin: build-server
-    - mixin: build-lib
-      vars:
-        name: 'reddit'
-    - mixin: build-lib
-      vars:
-        name: 'stackexchange'
+    - mixin: build-libs
   cover:
     - action: cover
       params:

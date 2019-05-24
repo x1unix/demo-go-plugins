@@ -1,0 +1,10 @@
+version: 1.0
+
+mixins:
+  build-lib:
+    - description: 'build {{name}} library'
+      action: build
+      params:
+        source: './sources/{{name}}'
+        outputPath: '{{lib_dir}}/{{name}}.so'
+        buildMode: plugin
