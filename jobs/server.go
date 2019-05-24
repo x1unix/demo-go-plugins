@@ -9,6 +9,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+const reloadEndpoint = "/reload"
+
 type event struct {
 	Type string `json:"type"`
 	Data string `json:"data"`
@@ -32,7 +34,7 @@ type ReloadServerAction struct {
 }
 
 // Call implements sdk.ActionHandler
-func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) (err error) {
+func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) error {
 	log := ctx.Log()
 	mux := http.NewServeMux()
 
@@ -72,7 +74,7 @@ func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) (
 	})
 
 	// reload notifier
-	mux.HandleFunc("/reload", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(reloadEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("live-reload: send reload signal")
 		a.msgs <- event{Type: "reload"}
 		w.WriteHeader(http.StatusNoContent)
@@ -94,6 +96,28 @@ func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) (
 
 // Cancel shutdowns server
 func (a *ReloadServerAction) Cancel(ctx sdk.JobContextAccessor) error {
+	ctx.Log().Debug("live-reload: stop server")
 	close(a.msgs)
 	return a.srv.Shutdown(ctx.Context())
+}
+
+// NewReloadServerAction creates a new live-reload start handler
+func NewReloadServerAction(scope sdk.ScopeAccessor, ap sdk.ActionParams) (sdk.ActionHandler, error) {
+	p := params{
+		Address: defaultAddr,
+		Timeout: sdk.Period(1000),
+	}
+
+	if err := ap.Unmarshal(&p); err != nil {
+		return nil, err
+	}
+
+	return &ReloadServerAction{
+		params: p,
+		msgs:   make(chan event),
+		upg: websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+		},
+	}, nil
 }

@@ -7,7 +7,7 @@ import (
 )
 
 const js = `
-(function() {
+(function(l) {
 	const ADDR = "ws://%s/connect";
 	const TIMEOUT = %d;
 
@@ -26,7 +26,7 @@ const js = `
 			switch (msg.type) {
 			case "reload":
 				console.info("live-reload: reloading...");
-				setTimeout(() => window.location.reload(), TIMEOUT);
+				setTimeout(() => l.reload(), TIMEOUT);
 				break;
 			case "shutdown":
 				console.info("live-reload: server sent shutdown event");
@@ -40,10 +40,10 @@ const js = `
 			console.error("live-reload: failed to parse message, " + err.message);
 		}
 	};
-})()
+})(window.location)
 `
 
 func getConnectionScript(addr string, timeout sdk.Period) []byte {
-	out := fmt.Sprintf(js, timeout, addr)
+	out := fmt.Sprintf(js, addr, timeout)
 	return []byte(out)
 }
