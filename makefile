@@ -59,10 +59,5 @@ watch:
 
 .PHONY: cover
 cover:
-	@if ! command -v "gocov" > /dev/null; then \
-		echo "GoCov not found, installing..."; \
-		go install github.com/axw/gocov/gocov; \
-	fi;
-
 	@$(foreach pkg,$(PKGS), go test -coverprofile=/tmp/cover.out $(pkg);\
 	rm /tmp/cover.out;)
