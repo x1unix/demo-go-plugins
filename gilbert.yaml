@@ -40,7 +40,7 @@ mixins:
     - description: 'copy assets'
       action: shell
       params:
-        command: 'cp -rf {{server_dir}}/public {{build_dir}}/public'
+        command: 'cp -rf {{server_dir}}/public {{build_dir}}'
 
   rebuild:
     - description: build server
@@ -54,8 +54,8 @@ mixins:
     - mixin: build-lib
       vars:
         name: 'stackexchange'
+    - mixin: copy-assets
     - action: 'live-reload:trigger'
-      async: true
       params:
         address: '{{watcher_addr}}'
     - action: shell
@@ -92,17 +92,10 @@ tasks:
       async: true
       params:
         address: '{{watcher_addr}}'
-        timeout: 3000
+        timeout: 1500
     - action: watch
       params:
-        path: './...'
-        ignore:
-          - 'docs/*'
-          - 'build/*'
-          - 'build/lib/*'
-          - '.git'
-          - 'go.mod'
-          - 'go.sum'
+        path: './server/...'
         run:
           mixin: rebuild
   start:

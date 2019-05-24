@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	sdk "github.com/go-gilbert/gilbert-sdk"
-	"github.com/gorilla/websocket"
 )
 
 const reloadEndpoint = "/reload"
@@ -16,18 +15,8 @@ type event struct {
 	Data string `json:"data"`
 }
 
-func (e *event) send(conn *websocket.Conn) error {
-	data, err := json.Marshal(e)
-	if err != nil {
-		return err
-	}
-
-	return conn.WriteMessage(websocket.TextMessage, data)
-}
-
 // ReloadServerAction implements action that starts live-reload server
 type ReloadServerAction struct {
-	upg    websocket.Upgrader
 	srv    *http.Server
 	msgs   chan event
 	params params
@@ -45,38 +34,25 @@ func (a *ReloadServerAction) Call(ctx sdk.JobContextAccessor, r sdk.JobRunner) (
 		w.Write(script)
 	})
 
-	// websocket connect
-	mux.HandleFunc("/connect", func(w http.ResponseWriter, r *http.Request) {
-		conn, err := a.upg.Upgrade(w, r, nil)
-		defer conn.Close()
-		if err != nil {
-			ctx.Log().Errorf("live-reload: failed to create socket, %s", err)
-			a.Cancel(ctx)
-			go ctx.Result(err) // Pass error to task runner
-			return
-		}
-
-		ctx.Log().Infof("live-reload: connected to %s", conn.RemoteAddr())
+	// change listener
+	mux.HandleFunc("/listen", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		ctx.Log().Debugf("live-reload: connected to %s", r.RemoteAddr)
 		for {
-			// _, _, err := conn.ReadMessage()
-			// if err != nil {
-			// 	break
-			// }
-
 			e, ok := <-a.msgs
 			if !ok {
-				break
+				w.WriteHeader(http.StatusNoContent)
+				return
 			}
 
-			ctx.Log().Debug("live.reload: received reload signal")
-			if err := e.send(conn); err != nil {
-				ctx.Log().Errorf("live-reload: failed to send reload signal, %s", err)
-				conn.Close()
-				break
+			ctx.Log().Debugf("live.reload: sending refresh to %s", r.RemoteAddr)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			if err := json.NewEncoder(w).Encode(e); err != nil {
+				ctx.Log().Errorf("live-reload: failed to send response (%s)", err)
 			}
+			return
 		}
-
-		ctx.Log().Infof("live-reload: disconnect from %s", conn.RemoteAddr())
 	})
 
 	// reload notifier
@@ -115,14 +91,6 @@ func NewReloadServerAction(scope sdk.ScopeAccessor, ap sdk.ActionParams) (sdk.Ac
 	return &ReloadServerAction{
 		params: p,
 		msgs:   make(chan event, 5),
-		upg: websocket.Upgrader{
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
-			CheckOrigin: func(r *http.Request) bool {
-				// Force allow any origins for demo purposes
-				return true
-			},
-		},
 	}, nil
 }
 
