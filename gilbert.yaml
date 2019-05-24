@@ -1,11 +1,25 @@
 version: 1.0
+  
+plugins:
+  - go://./jobs?rebuild=true
+
 vars:
   app_version: '1.0.0'
   build_dir: '{{PROJECT}}/build'
   lib_dir: '{{build_dir}}/lib'
   server_dir: './server'
+  watcher_addr: 'localhost:4800'
 
 mixins:
+  build-server:
+    - description: build server
+      action: build
+      params:
+        source: '{{server_dir}}'
+        outputPath: '{{build_dir}}/server'
+        variables:
+          'main.version': '{{app_version}}'
+          'main.commit': '{% git log --format=%H -n 1 %}'
   build-lib:
     - description: 'build {{name}} library'
       action: build
@@ -13,12 +27,14 @@ mixins:
         source: './sources/{{name}}'
         outputPath: '{{lib_dir}}/{{name}}.so'
         buildMode: plugin
-  build-clean:
+
+  clean:
     - if: '[ -d {{ build_dir }} ]'
       description: 'clean build directory'
       action: shell
       params:
         command: 'rm -rf {{build_dir}}'
+
   copy-assets:
     - if: '[ ! -d {{build_dir}} ]'
       description: 'create build directory'
@@ -32,54 +48,56 @@ mixins:
     - description: 'copy assets'
       action: shell
       params:
-        command: 'cp -rf {{server_dir}}/public {{build_dir}}/public'
-  watch:
-    - description: build server
-      action: build
-      params:
-        source: '{{server_dir}}'
-        outputPath: '{{build_dir}}/server'
+        command: 'cp -rf {{server_dir}}/public {{build_dir}}'
+
+  rebuild:
+    - mixin: build-server
     - mixin: build-lib
       vars:
         name: 'reddit'
     - mixin: build-lib
       vars:
         name: 'stackexchange'
+    - mixin: copy-assets
+    - action: 'live-reload:trigger'
+      params:
+        address: '{{watcher_addr}}'
     - action: shell
       params:
         workDir: '{{build_dir}}'
         command: '{{build_dir}}/server'
 
 tasks:
-  watch:
-    - mixin: build-clean
-    - mixin: copy-assets
-    - action: watch
-      params:
-        path: './...'
-        ignore:
-          - 'docs/*'
-          - 'build/*'
-          - 'build/lib/*'
-          - '.git'
-          - 'go.mod'
-          - 'go.sum'
-        run:
-          mixin: watch
   build:
-    - mixin: build-clean
+    - mixin: clean
     - mixin: copy-assets
-    - description: build server
-      action: build
-      params:
-        source: '{{server_dir}}'
-        outputPath: '{{build_dir}}/server'
+    - mixin: build-server
     - mixin: build-lib
       vars:
         name: 'reddit'
     - mixin: build-lib
       vars:
         name: 'stackexchange'
+  cover:
+    - action: cover
+      params:
+        threshold: 40
+        reportCoverage: true
+        packages:
+          - ./sources/...
+  watch:
+    - mixin: clean
+    - mixin: copy-assets
+    - action: live-reload:start-server
+      async: true
+      params:
+        address: '{{watcher_addr}}'
+        timeout: 1500
+    - action: watch
+      params:
+        path: './server/...'
+        run:
+          mixin: rebuild
   start:
     - if: '[ -f {{build_dir}}/server ]'
       action: shell
