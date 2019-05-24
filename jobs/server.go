@@ -14,7 +14,7 @@ type event struct {
 	Data string
 }
 
-func (e *event) send(c *websocket.Conn) error {
+func (e *event) send(conn *websocket.Conn) error {
 	data, err := json.Marshal(e)
 	if err != nil {
 		return err
