@@ -14,7 +14,18 @@ vars:
   watcher_addr: 'localhost:4800'
 
 mixins:
-  build-server:
+  rebuild:
+    - task: build
+    - action: 'live-reload:trigger'
+      params:
+        address: '{{watcher_addr}}'
+    - task: start
+
+tasks:
+  build:
+    - task: clean
+    - task: copy-assets
+    - task: build-libs
     - description: build server
       action: build
       params:
@@ -23,7 +34,7 @@ mixins:
         variables:
           'main.version': '{{app_version}}'
           'main.commit': '{% git log --format=%H -n 1 %}'
-  
+
   build-libs:
     - mixin: build-lib
       vars:
@@ -32,12 +43,24 @@ mixins:
       vars:
         name: 'stackexchange'
 
-  clean:
-    - if: '[ -d {{ build_dir }} ]'
-      description: 'clean build directory'
-      action: shell
+  cover:
+    - action: cover
       params:
-        command: 'rm -rf {{build_dir}}'
+        threshold: 40
+        reportCoverage: true
+        packages:
+          - ./sources/...
+  watch:
+    - action: live-reload:start-server
+      async: true
+      params:
+        address: '{{watcher_addr}}'
+        timeout: 1500
+    - action: watch
+      params:
+        path: './server/...'
+        run:
+          mixin: rebuild
 
   copy-assets:
     - if: '[ ! -d {{build_dir}} ]'
@@ -54,44 +77,6 @@ mixins:
       params:
         command: 'cp -rf {{server_dir}}/public {{build_dir}}'
 
-  rebuild:
-    - mixin: build-server
-    - mixin: build-libs
-    - mixin: copy-assets
-    - action: 'live-reload:trigger'
-      params:
-        address: '{{watcher_addr}}'
-    - action: shell
-      params:
-        workDir: '{{build_dir}}'
-        command: '{{build_dir}}/server'
-
-tasks:
-  build:
-    - mixin: clean
-    - mixin: copy-assets
-    - mixin: build-server
-    - mixin: build-libs
-  cover:
-    - action: cover
-      params:
-        threshold: 40
-        reportCoverage: true
-        packages:
-          - ./sources/...
-  watch:
-    - mixin: clean
-    - mixin: copy-assets
-    - action: live-reload:start-server
-      async: true
-      params:
-        address: '{{watcher_addr}}'
-        timeout: 1500
-    - action: watch
-      params:
-        path: './server/...'
-        run:
-          mixin: rebuild
   start:
     - if: '[ -f {{build_dir}}/server ]'
       action: shell
@@ -99,4 +84,8 @@ tasks:
         command: '{{build_dir}}/server'
         workDir: '{{build_dir}}'
   clean:
-  - mixin: build-clean
+    - if: '[ -d {{ build_dir }} ]'
+      description: 'clean build directory'
+      action: shell
+      params:
+        command: 'rm -rf {{build_dir}}'
