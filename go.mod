@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	github.com/beefsack/go-rate v0.0.0-20180408011153-efa7637bb9b6 // indirect
-	github.com/go-gilbert/gilbert-sdk v0.8.6
+	github.com/go-gilbert/gilbert-sdk v0.9.0
 	github.com/golang/mock v1.3.1
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gorilla/mux v1.7.0
