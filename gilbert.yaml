@@ -1,5 +1,7 @@
 version: 1.0
   
+{{{ $libs := sliceOf "reddit" "stackexchange" }}}
+{{{ $packages := sliceOf "./..." | yaml }}}
 imports:
   - ./docs/common.yaml
 
@@ -36,20 +38,20 @@ tasks:
           'main.commit': '{% git log --format=%H -n 1 %}'
 
   build-libs:
+    {{{ range $libs }}}
     - mixin: build-lib
       vars:
-        name: 'reddit'
-    - mixin: build-lib
-      vars:
-        name: 'stackexchange'
+        name: {{{.}}}
+    {{{ end }}}
 
   cover:
     - action: cover
       params:
         threshold: 40
         reportCoverage: true
-        packages:
-          - ./sources/...
+        packages: 
+          {{{ $packages }}}
+        
   watch:
     - action: live-reload:start-server
       async: true
